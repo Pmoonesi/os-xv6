@@ -16,6 +16,17 @@ sys_fork(void)
 }
 
 int
+sys_threadcreate(void)
+{
+  void* s;
+
+  if(argptr(1, &s, sizeof(*s)) < 0)
+    return -1;
+
+  return threadcreate(s);
+}
+
+int
 sys_exit(void)
 {
   exit();
@@ -26,6 +37,12 @@ int
 sys_wait(void)
 {
   return wait();
+}
+
+int
+sys_threadwait(void)
+{
+  return threadwait();
 }
 
 int

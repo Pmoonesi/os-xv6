@@ -20,7 +20,7 @@ thread_creator(void (*fn)(void*), void *arg){
     else
         stack = fptr + (PAGESIZE - mod);
 
-    // int thread_id = thread_create((void*)stack);
+    int thread_id = threadcreate((void*)stack);
 
     if(thread_id < 0)
         printf(1, "clone failed\n");
