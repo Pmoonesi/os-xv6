@@ -169,11 +169,15 @@ growproc(int n)
   acquire(&thread);
   sz = curproc->sz;
   if(n > 0){
-    if((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
+    if((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0){
+      release(&thread);
       return -1;
+    }
   } else if(n < 0){
-    if((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
+    if((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0){
+      release(&thread);
       return -1;
+    }
   }
   curproc->sz = sz;
   acquire(&ptable.lock);
@@ -262,6 +266,9 @@ fork(void)
   np->state = RUNNABLE;
 
   release(&ptable.lock);
+
+  // if (pid > 0)
+  //   panic("mader chud\n");
 
   return pid;
 }
@@ -393,8 +400,8 @@ wait(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != curproc)
         continue;
-      if(p->threads == -1)
-        continue;
+      // if(p->threads == -1)
+      //   continue;
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
@@ -460,7 +467,7 @@ threadwait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        p->stackTop = -1;
+        p->stackTop = 0;
         p->pgdir = 0;
         p->threads = -1;
         release(&ptable.lock);

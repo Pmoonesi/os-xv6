@@ -12,7 +12,8 @@ extern int readCount;
 int
 sys_fork(void)
 {
-  return fork();
+  int pid = fork();
+  return pid;
 }
 
 int
@@ -20,7 +21,7 @@ sys_threadcreate(void)
 {
   void* s;
 
-  if(argptr(1, &s, sizeof(*s)) < 0)
+  if(argptr(0, (void*)&s, sizeof(*s)) < 0)
     return -1;
 
   return threadcreate(s);
