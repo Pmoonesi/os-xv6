@@ -92,7 +92,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->stackTop = -1;
-  p->threads = -1;
+  p->threads = 1;
 
   release(&ptable.lock);
 
@@ -267,9 +267,6 @@ fork(void)
 
   release(&ptable.lock);
 
-  // if (pid > 0)
-  //   panic("mader chud\n");
-
   return pid;
 }
 
@@ -286,6 +283,7 @@ threadcreate(void *stack)
   }
 
   curproc->threads++;
+  np->threads=-1;
 
   np->stackTop = (int)((char*)stack + PGSIZE);
 
@@ -400,8 +398,8 @@ wait(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != curproc)
         continue;
-      // if(p->threads == -1)
-      //   continue;
+      if(p->threads == -1)
+        continue;
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
@@ -467,7 +465,7 @@ threadwait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        p->stackTop = 0;
+        p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
         release(&ptable.lock);
