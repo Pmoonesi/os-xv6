@@ -360,6 +360,7 @@ exit(void)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == curproc){
       p->parent = initproc;
+      initproc->threads++;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
     }
@@ -454,6 +455,7 @@ threadwait(void)
       if(p->state == ZOMBIE){
         // Found one.
         pid = p->pid;
+        p->parent->threads--;
         kfree(p->kstack);
         p->kstack = 0;
 

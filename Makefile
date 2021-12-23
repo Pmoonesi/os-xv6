@@ -184,6 +184,7 @@ UPROGS=\
 	_getProcCountTest\
 	_getReadCountTest\
 	_threads\
+	_threadsTest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -259,6 +260,7 @@ EXTRA=\
 	getProcCountTest.c\
 	getReadCountTest.c\
 	threads.c\
+	threadsTest.c\
 
 dist:
 	rm -rf dist
