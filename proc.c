@@ -93,6 +93,7 @@ found:
   p->pid = nextpid++;
   p->stackTop = -1;
   p->threads = 1;
+  p->status = 2;
 
   release(&ptable.lock);
 
@@ -722,4 +723,108 @@ getProcCount(void)
   release(&ptable.lock);
 
   return procCount;
+}
+
+int unit0_operation(void *stack, struct unit *newunit) {
+  struct proc *p, *myp;
+  int count = 100, i = 0;
+  int tid = threadcreate(stack);
+  if(tid < 0)
+    return -1;
+  else if(tid == 0){
+
+    acquire(&ptable.lock);
+    myp = myproc();
+    myp->status = 0;
+    myp->punit = newunit;
+    release(&ptable.lock);
+
+    while(i < count){
+      acquire(&ptable.lock);
+      acquire(&thread);
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->state == UNUSED || p->state == ZOMBIE)
+          continue;
+        if(p->status == 1){
+          int units_size = sizeof(*(p->ptask->units))/sizeof(int);
+          if(p->ptask->unit_count < units_size){
+            int value = p->ptask->value;
+            value = (value + 7) % M;
+            p->ptask->value = value;
+          }
+        }
+      }
+      release(&thread);
+      release(&ptable.lock);
+      i++;
+    }
+    cprintf("unit0: %d finished the job!\n", tid);
+    exit();
+  }
+
+  return tid;
+}
+
+int unit_operation(void *stack, struct unit *newunit) {
+  struct proc *p, *myp;
+  int count = 10, i = 0;
+  int tid = threadcreate(stack);
+  if(tid < 0)
+    return -1;
+  else if(tid == 0){
+
+    acquire(&ptable.lock);
+    myp = myproc();
+    myp->status = 0;
+    myp->punit = newunit;
+    release(&ptable.lock);
+
+    while(i < count){
+      acquire(&ptable.lock);
+      acquire(&thread);
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->state == UNUSED || p->state == ZOMBIE)
+          continue;
+
+        if(p->status != 1)
+          continue;
+
+        int units_size = sizeof(*(p->ptask->units))/sizeof(int);
+        if(p->ptask->unit_count >= units_size)
+          continue;
+
+        int index = p->ptask->unit_count;
+        int *units = p->ptask->units;
+        if(units[index] != myp->punit->unit_num)
+          continue;
+
+        int value = p->ptask->value;
+        switch(units[index]){
+          case 0:
+            value = (value + 7) % M;
+            break;
+          case 1:
+            value = (2*value) % M;
+            break;
+          case 2:
+            value = (3*value) % M;
+            break;
+          case 3:
+            cprintf("thread %d: value of task %d is: \n", tid, p->pid);
+            break;
+          default:
+            break;
+        }
+        p->ptask->value = value;
+        break;
+      }
+      release(&thread);
+      release(&ptable.lock);
+      i++;
+    }
+    cprintf("unit0: %d finished the job!\n", tid);
+    exit();
+  }
+
+  return tid;
 }

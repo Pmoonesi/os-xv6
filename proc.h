@@ -51,8 +51,22 @@ struct proc {
   char name[16];               // Process name (debugging)
   int stackTop;
   int threads;
+  int status;
+  struct task *ptask;
+  struct unit *punit;
 };
 
+struct task {
+  int value;
+  int unit_count;
+  int *units;
+};
+
+struct unit {
+  int unit_num;
+};
+
+#define M 2
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss

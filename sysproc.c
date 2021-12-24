@@ -12,8 +12,7 @@ extern int readCount;
 int
 sys_fork(void)
 {
-  int pid = fork();
-  return pid;
+  return fork();
 }
 
 int
@@ -120,4 +119,18 @@ int
 sys_getReadCount(void)
 {
   return readCount;
+}
+
+int 
+sys_unit_operation(void)
+{
+  void *s;
+  struct unit u;
+  int temp;
+
+  if(argptr(0, (void*)&s, sizeof(*s)) < 0 || argint(1, &temp) < 0)
+    return -1;
+
+  u.unit_num = temp;
+  return unit_operation(s, &u);
 }
