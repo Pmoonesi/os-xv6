@@ -360,7 +360,8 @@ exit(void)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == curproc){
       p->parent = initproc;
-      initproc->threads++;
+      if(p->threads == -1)
+        initproc->threads++;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
     }
