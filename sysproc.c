@@ -134,3 +134,21 @@ sys_unit_operation(void)
   u.unit_num = temp;
   return unit_operation(s, &u);
 }
+
+int
+sys_createtask(void)
+{
+  void *s;
+  struct task t;
+  int v;
+  int c;
+  int *u;
+
+  if(argptr(0, (void*)&s, sizeof(*s)) < 0 || argptr(1, (void*)&u, sizeof(*u)) < 0 || argint(2, &c) < 0 || argint(3, &v) < 0)
+    return -1;
+
+  t.value = v;
+  t.unit_count = c;
+  t.units = u;
+  return createtask(s, &t);
+}

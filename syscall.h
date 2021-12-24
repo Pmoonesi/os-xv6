@@ -25,3 +25,4 @@
 #define SYS_threadcreate 24
 #define SYS_threadwait 25
 #define SYS_unit_operation 26
+#define SYS_createtask 27

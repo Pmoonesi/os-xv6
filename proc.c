@@ -420,6 +420,7 @@ wait(void)
         p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
+        p->status = -1;
         release(&ptable.lock);
         return pid;
       }
@@ -471,6 +472,7 @@ threadwait(void)
         p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
+        p->status = -1;
         release(&ptable.lock);
         return pid;
       }
@@ -727,7 +729,7 @@ getProcCount(void)
 
 int unit0_operation(void *stack, struct unit *newunit) {
   struct proc *p, *myp;
-  int count = 100, i = 0;
+  int count = 100000, i = 0;
   int tid = threadcreate(stack);
   if(tid < 0)
     return -1;
@@ -816,6 +818,7 @@ int unit_operation(void *stack, struct unit *newunit) {
             break;
         }
         p->ptask->value = value;
+        p->ptask->unit_count++;
         break;
       }
       release(&thread);
@@ -823,6 +826,29 @@ int unit_operation(void *stack, struct unit *newunit) {
       i++;
     }
     cprintf("unit0: %d finished the job!\n", tid);
+    exit();
+  }
+
+  return tid;
+}
+
+int createtask(void *stack, struct task *newtask){
+  struct proc *myp;
+  int tid = threadcreate(stack);
+  if(tid < 0)
+    return -1;
+  else if(tid == 0){
+
+    acquire(&ptable.lock);
+    myp = myproc();
+    myp->status = 1;
+    myp->ptask = newtask;
+    release(&ptable.lock);
+
+    int units_size = sizeof(*(myp->ptask->units))/sizeof(int);
+    while(myp->ptask->unit_count < units_size);
+    cprintf("task %d's units are finished with value %d.\n", tid, myp->ptask->value);
+
     exit();
   }
 

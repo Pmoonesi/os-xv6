@@ -10,6 +10,7 @@ struct sleeplock;
 struct stat;
 struct superblock;
 struct unit;
+struct task;
 
 // bio.c
 void            binit(void);
@@ -125,6 +126,7 @@ void            wakeup(void*);
 void            yield(void);
 int             getProcCount(void);
 int             unit_operation(void*, struct unit*);
+int             createtask(void*, struct task*);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
