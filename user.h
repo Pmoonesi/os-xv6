@@ -27,6 +27,7 @@ int getProcCount(void);
 int getReadCount(void);
 int threadcreate(void*);
 int threadwait(void);
+int setPolicy(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

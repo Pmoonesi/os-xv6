@@ -121,3 +121,13 @@ sys_getReadCount(void)
 {
   return readCount;
 }
+
+int
+sys_setPolicy(void)
+{
+  int mode;
+  if(argint(0, &mode) < 0)
+    return -1;
+  setPolicy(mode);
+  return 0;
+}

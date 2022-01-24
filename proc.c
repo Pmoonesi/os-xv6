@@ -14,6 +14,8 @@ struct {
 
 static struct proc *initproc;
 
+int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
@@ -93,6 +95,10 @@ found:
   p->pid = nextpid++;
   p->stackTop = -1;
   p->threads = 1;
+  p->priority = 3;
+  p->waitTime = 0;
+  p->runTime = 0;
+  p->lastBurst = 0;
 
   release(&ptable.lock);
 
@@ -420,6 +426,10 @@ wait(void)
         p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
+        p->waitTime = 0;
+        p->runTime = 0;
+        p->priority = 0;
+        p->lastBurst = 0;
         release(&ptable.lock);
         return pid;
       }
@@ -471,6 +481,10 @@ threadwait(void)
         p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
+        p->waitTime = 0;
+        p->runTime = 0;
+        p->priority = 0;
+        p->lastBurst = 0;
         release(&ptable.lock);
         return pid;
       }
@@ -517,8 +531,9 @@ scheduler(void)
       // before jumping back to us.
       c->proc = p;
       switchuvm(p);
-      p->state = RUNNING;
 
+      p->lastBurst = 0;
+      p->state = RUNNING;
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -723,4 +738,46 @@ getProcCount(void)
   release(&ptable.lock);
 
   return procCount;
+}
+
+void 
+setPolicy(int policy)
+{
+  if(policy == 3){
+    mode = 3;
+  } else if (policy == 1){
+    mode = 1;
+  } else if (policy == 2){
+    mode = 2;
+  } else {
+    mode = 0;
+  }
+}
+
+void 
+updateStatus(void)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNING){
+      p->runTime++;
+    } else if (p->state != ZOMBIE && p->state != UNUSED){
+      p->waitTime++;
+    }
+  }
+  release(&ptable.lock);
+
+}
+
+int
+updateLastBurst(void){
+  struct proc *p = myproc();
+  int burstTime = 0;
+  acquire(&ptable.lock);
+  p->lastBurst++;
+  burstTime = p->lastBurst;
+  release(&ptable.lock);
+  return burstTime;
 }
