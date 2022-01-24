@@ -29,6 +29,7 @@ int threadcreate(void*);
 int threadwait(void);
 int setPolicy(int);
 int getInformation(int);
+int setPriority(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

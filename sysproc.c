@@ -140,3 +140,13 @@ sys_getInformation(void)
     return -1;
   return getInformation(mode);
 }
+
+int
+sys_setPriority(void)
+{
+  int priority;
+  if(argint(0, &priority) < 0)
+    return -1;
+  setPriority(priority);
+  return 1;
+}

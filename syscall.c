@@ -109,6 +109,7 @@ extern int sys_threadcreate(void);
 extern int sys_threadwait(void);
 extern int sys_setPolicy(void);
 extern int sys_getInformation(void);
+extern int sys_setPriority(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -137,7 +138,8 @@ static int (*syscalls[])(void) = {
 [SYS_threadcreate] sys_threadcreate,
 [SYS_threadwait] sys_threadwait,
 [SYS_setPolicy] sys_setPolicy,
-[SYS_getInformation] sys_getInformation
+[SYS_getInformation] sys_getInformation,
+[SYS_setPriority] sys_setPriority
 };
 
 void

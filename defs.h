@@ -127,6 +127,7 @@ void setPolicy(int);
 void updateStatus(void);
 int updateLastBurst(void);
 int getInformation(int);
+void setPriority(int);
 
 // swtch.S
 void swtch(struct context **, struct context *);

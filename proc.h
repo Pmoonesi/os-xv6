@@ -56,6 +56,7 @@ struct proc {
   int runTime;                 // Time spent running
   int priority;                // Process priority
   int lastBurst;               // Time of last cpu burst
+  int lastCPUGiven;            // last time tick the process was given cpu
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -14,7 +14,7 @@ struct {
 
 static struct proc *initproc;
 
-int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int mode = 1;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
 int information[2];
 
 int nextpid = 1;
@@ -100,6 +100,7 @@ found:
   p->waitTime = 0;
   p->runTime = 0;
   p->lastBurst = 0;
+  p->lastCPUGiven = -1;
 
   release(&ptable.lock);
 
@@ -433,6 +434,7 @@ wait(void)
         p->runTime = 0;
         p->priority = 0;
         p->lastBurst = 0;
+        p->lastCPUGiven = -1;
         release(&ptable.lock);
         return pid;
       }
@@ -525,27 +527,117 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    if(mode == 0){
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->state != RUNNABLE)
+          continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
 
-      p->lastBurst = 0;
-      p->state = RUNNING;
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+        p->lastBurst = 0;
+        p->state = RUNNING;
+        swtch(&(c->scheduler), p->context);
+        p->lastCPUGiven = ticks;
+        switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+        if(mode != 0)
+          break;
+      }
+    } else if (mode == 1) {
+      // struct proc options[50];
+      // int index = 0;
+      // int best_priority = 6;
+      // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      //   if(p->state != RUNNABLE)
+      //     continue;
+
+      //   if(p->priority == best_priority)
+      //     options[index++] = *p;
+      //   else if(p->priority < best_priority){
+      //     best_priority = p->priority;
+      //     index = 0;
+      //     options[index++] = *p;
+      //   }
+      // }
+      // if(index > 0){
+      //   struct proc *bestOption = options;
+      //   for(p = options; p < &options[index]; p++){
+      //     // find right process for round robin  
+      //     cprintf("healiod\n"); 
+      //     if(bestOption->lastCPUGiven > p->lastCPUGiven)
+      //       bestOption = p;
+      //   }
+      //   p = bestOption;
+
+      //   // Switch to chosen process.  It is the process's job
+      //   // to release ptable.lock and then reacquire it
+      //   // before jumping back to us.
+      //   c->proc = p;
+      //   switchuvm(p);
+
+      //   p->lastBurst = 0;
+      //   p->state = RUNNING;
+      //   swtch(&(c->scheduler), p->context);
+      //   p->lastCPUGiven = ticks;
+
+      //   switchkvm();
+
+      //   // Process is done running for now.
+      //   // It should have changed its p->state before coming back.
+      //   c->proc = 0;
+      // }
+      int options[50];
+      int i = 0;
+      int index = 0;
+      int best_priority = 6;
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++,i++){
+        if(p->state != RUNNABLE)
+          continue;
+
+        if(p->priority == best_priority)
+          options[index++] = i;
+        else if(p->priority < best_priority){
+          best_priority = p->priority;
+          index = 0;
+          options[index++] = i;
+        }
+      }
+      if(index > 0){
+        struct proc *option = &ptable.proc[options[0]];
+        for(int j = 1; j < index; j++){
+          // find right process for round robin
+          p = &ptable.proc[options[j]];   
+          if(option->lastCPUGiven > p->lastCPUGiven)
+            option = p;
+        }
+        p = option;
+
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+
+        p->lastBurst = 0;
+        p->state = RUNNING;
+        swtch(&(c->scheduler), p->context);
+        p->lastCPUGiven = ticks;
+
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+      }
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -790,4 +882,15 @@ getInformation(int state){
   if (state == 0)
     return information[0];
   return information[1];
+}
+
+void
+setPriority(int priority){
+  acquire(&ptable.lock);
+  struct proc *nowproc = myproc();
+  if (priority < 1 || priority > 6)
+    nowproc->priority = 5;
+  else
+    nowproc->priority = priority;
+  release(&ptable.lock);
 }

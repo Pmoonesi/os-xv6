@@ -26,3 +26,4 @@
 #define SYS_threadwait 25
 #define SYS_setPolicy 26
 #define SYS_getInformation 27
+#define SYS_setPriority 28
