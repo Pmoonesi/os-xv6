@@ -128,6 +128,7 @@ void updateStatus(void);
 int updateLastBurst(void);
 int getInformation(int);
 void setPriority(int);
+int getPriority(void);
 
 // swtch.S
 void swtch(struct context **, struct context *);

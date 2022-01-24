@@ -894,3 +894,12 @@ setPriority(int priority){
     nowproc->priority = priority;
   release(&ptable.lock);
 }
+
+int
+getPriority(void){
+  acquire(&ptable.lock);
+  struct proc *nowproc = myproc();
+  int priority = nowproc->priority;
+  release(&ptable.lock);
+  return priority;
+}

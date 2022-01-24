@@ -27,3 +27,4 @@
 #define SYS_setPolicy 26
 #define SYS_getInformation 27
 #define SYS_setPriority 28
+#define SYS_getPriority 29

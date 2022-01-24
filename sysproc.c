@@ -150,3 +150,9 @@ sys_setPriority(void)
   setPriority(priority);
   return 1;
 }
+
+int
+sys_getPriority(void)
+{
+  return getPriority();
+}

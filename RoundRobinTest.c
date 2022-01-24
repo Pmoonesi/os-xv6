@@ -15,9 +15,10 @@ int main()
             int pid = getpid();
             for (int j = 0; j < 1000; j++)
             {
-                if(j % 500 == 0)
-                    printf(1, "/PID/: /%d/\n", pid);
+                // if(j % 50 == 0)
+                printf(1, "/PID/: /%d/\n", pid);
             }
+            // for(int z = 0; z < 200000; z++);
             exit();
         }
     }

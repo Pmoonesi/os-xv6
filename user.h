@@ -30,6 +30,7 @@ int threadwait(void);
 int setPolicy(int);
 int getInformation(int);
 int setPriority(int);
+int getPriority(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
