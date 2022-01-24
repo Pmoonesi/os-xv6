@@ -28,6 +28,7 @@ int getReadCount(void);
 int threadcreate(void*);
 int threadwait(void);
 int setPolicy(int);
+int getInformation(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -36,6 +37,7 @@ void *memmove(void*, const void*, int);
 char* strchr(const char*, char c);
 int strcmp(const char*, const char*);
 void printf(int, const char*, ...);
+void printfloat(int, float);
 char* gets(char*, int max);
 uint strlen(const char*);
 void* memset(void*, int, uint);

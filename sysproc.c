@@ -131,3 +131,12 @@ sys_setPolicy(void)
   setPolicy(mode);
   return 0;
 }
+
+int
+sys_getInformation(void)
+{
+  int mode;
+  if(argint(0, &mode) < 0)
+    return -1;
+  return getInformation(mode);
+}

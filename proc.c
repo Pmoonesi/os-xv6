@@ -15,6 +15,7 @@ struct {
 static struct proc *initproc;
 
 int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int information[2];
 
 int nextpid = 1;
 extern void forkret(void);
@@ -426,6 +427,8 @@ wait(void)
         p->stackTop = -1;
         p->pgdir = 0;
         p->threads = -1;
+        information[0] = p->waitTime;
+        information[1] = p->runTime;
         p->waitTime = 0;
         p->runTime = 0;
         p->priority = 0;
@@ -780,4 +783,11 @@ updateLastBurst(void){
   burstTime = p->lastBurst;
   release(&ptable.lock);
   return burstTime;
+}
+
+int
+getInformation(int state){
+  if (state == 0)
+    return information[0];
+  return information[1];
 }

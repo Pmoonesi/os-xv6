@@ -35,7 +35,20 @@ printint(int fd, int xx, int base, int sgn)
     putc(fd, buf[i]);
 }
 
-// Print to the given fd. Only understands %d, %x, %p, %s.
+// MOD-2 : Added printf for floats
+void
+printfloat(int fd, float xx)
+{
+  int beg=(int)(xx);
+	int fin=(int)(xx*100)-beg*100;
+  printint(fd, beg, 10, 1);
+  putc(fd, '.');
+	if(fin<10)
+    putc(fd, '0');
+	printint(fd, fin, 10, 1);
+}
+
+// Print to the given fd. Only understands %d, %x, %p, %s, %f.
 void
 printf(int fd, const char *fmt, ...)
 {
@@ -71,6 +84,9 @@ printf(int fd, const char *fmt, ...)
         }
       } else if(c == 'c'){
         putc(fd, *ap);
+        ap++;
+      } else if(c == 'f'){ // MOD-2
+        printfloat(fd, (float)*ap);
         ap++;
       } else if(c == '%'){
         putc(fd, c);

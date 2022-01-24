@@ -126,6 +126,7 @@ int getProcCount(void);
 void setPolicy(int);
 void updateStatus(void);
 int updateLastBurst(void);
+int getInformation(int);
 
 // swtch.S
 void swtch(struct context **, struct context *);

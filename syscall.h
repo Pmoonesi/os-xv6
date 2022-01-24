@@ -25,3 +25,4 @@
 #define SYS_threadcreate 24
 #define SYS_threadwait 25
 #define SYS_setPolicy 26
+#define SYS_getInformation 27
