@@ -4,6 +4,10 @@
 
 int main()
 {
+    setPolicy(0);
+    int Ws[10];
+    int CBs[10];
+    int PIDs[10];
     double mean_CBT= 0.0;
     double mean_WT = 0.0;
     double mean_TT = 0.0;
@@ -26,13 +30,16 @@ int main()
     for (int i = 0; i < 10; i++)
     {
         int pid = wait();
-        int info[2];
-        info[0] = getInformation(0);
-        info[1] = getInformation(1);
-        printf(1, "/PID/: /%d/, /WT/ :/%d/, /TT/ :/%d/, /CBT/: /%d/\n", pid, info[0], info[0] + info[1], info[1]);
-        mean_CBT += info[1];
-        mean_WT += info[0];
-        mean_TT += info[0] + info[1];
+        Ws[i] = getInformation(0);
+        CBs[i] = getInformation(1);
+        mean_CBT += CBs[i];
+        mean_WT += Ws[i];
+        mean_TT += Ws[i] + CBs[i];
+        PIDs[i] = pid;
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        printf(1, "/PID/: /%d/, /WT/ :/%d/, /TT/ :/%d/, /CBT/: /%d/\n", PIDs[i], Ws[i], Ws[i] + CBs[i], CBs[i]);
     }
     mean_CBT = mean_CBT / 10.0;
     mean_WT = mean_WT / 10.0;
@@ -43,5 +50,6 @@ int main()
     printfloat(1, mean_WT);
     printf(1, "\n/Mean_TT/: ");
     printfloat(1, mean_TT);
+    printf(1, "\n");
     exit();
 }

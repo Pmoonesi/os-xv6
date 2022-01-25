@@ -14,7 +14,7 @@ struct {
 
 static struct proc *initproc;
 
-int mode = 2;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
 int information[2];
 
 int nextpid = 1;
