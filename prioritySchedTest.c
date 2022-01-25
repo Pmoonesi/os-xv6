@@ -16,7 +16,7 @@ int main()
             if(!(pid = fork()))
             {
                 setPriority(7-i/5);
-                // sleep(10);
+                sleep(100);
             }
         }
     }
@@ -50,6 +50,7 @@ int main()
         printfloat(1, mean_WT);
         printf(1, "\n/Mean_TT/: ");
         printfloat(1, mean_TT);
+        printf(1, "\n");
         exit();
     }
 }

@@ -129,6 +129,8 @@ int updateLastBurst(void);
 int getInformation(int);
 void setPriority(int);
 int getPriority(void);
+int getQuantum(void);
+int checkForBetterProc(void);
 
 // swtch.S
 void swtch(struct context **, struct context *);

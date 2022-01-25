@@ -14,7 +14,7 @@ struct {
 
 static struct proc *initproc;
 
-int mode = 1;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int mode = 2;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
 int information[2];
 
 int nextpid = 1;
@@ -550,7 +550,7 @@ scheduler(void)
         if(mode != 0)
           break;
       }
-    } else if (mode == 1) {
+    } else if (mode == 1 || mode == 2) {
       // struct proc options[50];
       // int index = 0;
       // int best_priority = 6;
@@ -902,4 +902,47 @@ getPriority(void){
   int priority = nowproc->priority;
   release(&ptable.lock);
   return priority;
+}
+
+int
+getQuantum(void){
+  acquire(&ptable.lock);
+  int priority = myproc()->priority;
+  int q = QUANTUM;
+  if (mode == 2){
+    if (priority == 1)
+      q = QUANTUM1;
+    else if (priority == 2)
+      q = QUANTUM2;
+    else if (priority == 3)
+      q = QUANTUM3;
+    else if (priority == 4)
+      q = QUANTUM4;
+    else if (priority == 5)
+      q = QUANTUM5;
+    else if (priority == 6)
+      q = QUANTUM6;
+  }
+  release(&ptable.lock);
+  return q;
+}
+
+int checkForBetterProc(void){
+
+  if (mode != 2)
+    return 0;
+  int bestPriority = 6;
+  int check = 0;
+  acquire(&ptable.lock);
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNABLE && p->priority < bestPriority){
+      bestPriority = p->priority;
+    }
+  }
+  if (bestPriority < myproc()->priority){
+    check = 1;
+  }
+  release(&ptable.lock);
+  return check;
 }
