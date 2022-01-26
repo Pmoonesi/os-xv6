@@ -100,6 +100,10 @@ exec(char *path, char **argv)
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
   curproc->stackTop = sp;
+
+  // scheduling mode 3 causes priority to reset
+  if(getPolicy() == 3)
+    curproc->priority = 3;
  
   switchuvm(curproc);
   freevm(oldpgdir);

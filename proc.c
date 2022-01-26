@@ -14,7 +14,7 @@ struct {
 
 static struct proc *initproc;
 
-int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int mode = 4;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
 int information[2];
 
 int nextpid = 1;
@@ -550,49 +550,7 @@ scheduler(void)
         if(mode != 0)
           break;
       }
-    } else if (mode == 1 || mode == 2) {
-      // struct proc options[50];
-      // int index = 0;
-      // int best_priority = 6;
-      // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      //   if(p->state != RUNNABLE)
-      //     continue;
-
-      //   if(p->priority == best_priority)
-      //     options[index++] = *p;
-      //   else if(p->priority < best_priority){
-      //     best_priority = p->priority;
-      //     index = 0;
-      //     options[index++] = *p;
-      //   }
-      // }
-      // if(index > 0){
-      //   struct proc *bestOption = options;
-      //   for(p = options; p < &options[index]; p++){
-      //     // find right process for round robin  
-      //     cprintf("healiod\n"); 
-      //     if(bestOption->lastCPUGiven > p->lastCPUGiven)
-      //       bestOption = p;
-      //   }
-      //   p = bestOption;
-
-      //   // Switch to chosen process.  It is the process's job
-      //   // to release ptable.lock and then reacquire it
-      //   // before jumping back to us.
-      //   c->proc = p;
-      //   switchuvm(p);
-
-      //   p->lastBurst = 0;
-      //   p->state = RUNNING;
-      //   swtch(&(c->scheduler), p->context);
-      //   p->lastCPUGiven = ticks;
-
-      //   switchkvm();
-
-      //   // Process is done running for now.
-      //   // It should have changed its p->state before coming back.
-      //   c->proc = 0;
-      // }
+    } else {  // if (mode == 1 || mode == 2 || mode == 3)
       int options[50];
       int i = 0;
       int index = 0;
@@ -746,8 +704,12 @@ wakeup1(void *chan)
   struct proc *p;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == SLEEPING && p->chan == chan)
+    if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
+      // best priority coming back from I/O
+      if(mode == 3)
+        p->priority = 1;
+    }
 }
 
 // Wake up all processes sleeping on chan.
@@ -772,8 +734,12 @@ kill(int pid)
     if(p->pid == pid){
       p->killed = 1;
       // Wake process from sleep if necessary.
-      if(p->state == SLEEPING)
+      if(p->state == SLEEPING){
         p->state = RUNNABLE;
+        // force process to quit I/O to kill the process
+        if(mode == 3)
+          p->priority = 1;
+      }
       release(&ptable.lock);
       return 0;
     }
@@ -840,13 +806,19 @@ setPolicy(int policy)
 {
   if(policy == 3){
     mode = 3;
-  } else if (policy == 1){
-    mode = 1;
   } else if (policy == 2){
     mode = 2;
+  } else if (policy == 1){
+    mode = 1;
   } else {
     mode = 0;
   }
+}
+
+int
+getPolicy(void)
+{
+  return mode;
 }
 
 void 
@@ -858,7 +830,7 @@ updateStatus(void)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == RUNNING){
       p->runTime++;
-    } else if (p->state != ZOMBIE && p->state != UNUSED){
+    } else if (p->state != ZOMBIE && p->state != UNUSED && p->state != EMBRYO){
       p->waitTime++;
     }
   }
@@ -886,6 +858,8 @@ getInformation(int state){
 
 void
 setPriority(int priority){
+  if(mode == 0 || mode == 3)
+    return;
   acquire(&ptable.lock);
   struct proc *nowproc = myproc();
   if (priority < 1 || priority > 6)
@@ -909,7 +883,7 @@ getQuantum(void){
   acquire(&ptable.lock);
   int priority = myproc()->priority;
   int q = QUANTUM;
-  if (mode == 2){
+  if (mode == 2 || mode == 3){
     if (priority == 1)
       q = QUANTUM1;
     else if (priority == 2)
@@ -929,8 +903,9 @@ getQuantum(void){
 
 int checkForBetterProc(void){
 
-  if (mode != 2)
+  if (mode == 0 || mode == 1)
     return 0;
+
   int bestPriority = 6;
   int check = 0;
   acquire(&ptable.lock);

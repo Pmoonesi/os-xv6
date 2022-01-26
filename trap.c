@@ -103,8 +103,12 @@ trap(struct trapframe *tf)
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
-  if(myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER && updateLastBurst() == getQuantum())
+  int priority;
+  if(myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER && updateLastBurst() == getQuantum()){
+    if(getPolicy() == 3 && (priority = getPriority()) != 6)
+      setPriority(priority+1);
     yield();
+  }
 
   if(myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER && checkForBetterProc() == 1)
     yield();

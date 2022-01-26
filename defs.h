@@ -131,6 +131,7 @@ void setPriority(int);
 int getPriority(void);
 int getQuantum(void);
 int checkForBetterProc(void);
+int getPolicy(void);
 
 // swtch.S
 void swtch(struct context **, struct context *);
