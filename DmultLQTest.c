@@ -2,9 +2,15 @@
 #include "stat.h"
 #include "user.h"
 
+long fibbonacci(int n){
+    if(n == 1 || n == 2)
+        return 1;
+    return fibbonacci(n - 1) + fibbonacci(n - 2);
+}
+
 int main()
 {
-    setPolicy(2);
+    setPolicy(3);
     int Ws[60];
     int CBs[60];
     int PIDs[60];
@@ -12,16 +18,15 @@ int main()
     double mean_WT = 0.0;
     double mean_TT = 0.0;
     int pid = getpid();
-    setPriority(1);
-    int j = 0;
+    long j = 0;
     for (int i = 69; i > 9; i--)
     {
         if (pid)
         {
             if(!(pid = fork()))
             {
-                setPriority(7-i/10);
-                sleep(100);
+                // setPriority(7-i/10);
+                // sleep(100);
                 j = i - 9;
             }
         }
@@ -29,9 +34,12 @@ int main()
 
     if(!pid){
         // int childNumber = getpid();
-        // int priority = getPriority();
-        for(int i = 0; i < 200; i++)
+        for(int i = 0; i < 200; i++){
+            // fibbonacci(24);
             printf(1, "/%d/ : /%d/\n", j, i);
+        }
+        int priority = getPriority();
+        printf(1, "THIS IS PRIORITY%d-%d\n", priority, j);
         exit();
     }else{
         for (int i = 0; i < 60; i++)

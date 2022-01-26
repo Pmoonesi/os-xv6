@@ -14,7 +14,7 @@ struct {
 
 static struct proc *initproc;
 
-int mode = 4;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
+int mode = 0;        // 0:RR, 1:Priority-non-preemptive, 2:Priority-preemptive, 3:multi-level feedback queue
 int information[2];
 
 int nextpid = 1;
@@ -858,7 +858,7 @@ getInformation(int state){
 
 void
 setPriority(int priority){
-  if(mode == 0 || mode == 3)
+  if(mode == 0)
     return;
   acquire(&ptable.lock);
   struct proc *nowproc = myproc();

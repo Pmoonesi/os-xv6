@@ -186,6 +186,7 @@ UPROGS=\
 	_RoundRobinTest\
 	_multLQTest\
 	_prioritySchedTest\
+	_DmultLQTest\
 	#_getProcCountTest\
 	_getReadCountTest\
 
@@ -267,6 +268,7 @@ EXTRA=\
 	RoundRobinTest.c\
 	multLQTest.c\
 	prioritySchedTest.c\
+	DmultLQTest.c\
 	#getProcCountTest.c\
 	getReadCountTest.c\
 
