@@ -29,4 +29,4 @@ make clean
 before running `make` and `make qemu` again.
 
 ## phase 2 & 3
-You can find out about the second phase of this project in `os-threads` branch of this repo ([link](os-xv6/tree/os-threads/)). Also, you can find out about the third phase of this project in `os-scheduling` branch of this repo ([link](os-xv6/tree/os-scheduling/)).
+You can find out about the second phase of this project in `os-threads` branch of this repo ([link](../../tree/os-threads/)). Also, you can find out about the third phase of this project in `os-scheduling` branch of this repo ([link](../../tree/os-scheduling/)).
