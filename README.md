@@ -29,4 +29,4 @@ make clean
 before running `make` and `make qemu` again.
 
 ## phase 1 & 2
-You can find out about the first phase of this project in `master` branch of this repo ([link](../master/)). Also, you can find out about the scond phase of this project in `os-threads` branch of this repo ([link](../os-threads/)).
+You can find out about the first phase of this project in `master` branch of this repo ([link](../../tree/master/)). Also, you can find out about the scond phase of this project in `os-threads` branch of this repo ([link](../../tree/os-threads/)).
